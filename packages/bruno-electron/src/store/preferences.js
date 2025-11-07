@@ -42,11 +42,13 @@ const defaultPreferences = {
     responsePaneOrientation: 'horizontal'
   },
   beta: {
-    grpc: false,
     nodevm: false
   },
   onboarding: {
     hasLaunchedBefore: false
+  },
+  general: {
+    defaultCollectionLocation: ''
   }
 };
 
@@ -84,11 +86,13 @@ const preferencesSchema = Yup.object().shape({
     responsePaneOrientation: Yup.string().oneOf(['horizontal', 'vertical'])
   }),
   beta: Yup.object({
-    grpc: Yup.boolean(),
     nodevm: Yup.boolean()
   }),
   onboarding: Yup.object({
     hasLaunchedBefore: Yup.boolean()
+  }),
+  general: Yup.object({
+    defaultCollectionLocation: Yup.string().max(1024).nullable()
   })
 });
 

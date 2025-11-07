@@ -6,6 +6,20 @@ const StyledWrapper = styled.div`
   max-height: 200px;
   overflow: auto;
 
+  &.read-only {
+    .CodeMirror .CodeMirror-lines {
+      cursor: not-allowed !important;
+    }
+
+    .CodeMirror-line {
+      color: ${(props) => props.theme.colors.text.muted} !important;
+    }
+
+    .CodeMirror-cursor {
+      display: none !important;
+    }
+  }
+
   .CodeMirror {
     background: transparent;
     height: fit-content;

@@ -6,11 +6,12 @@ import filter from 'lodash/filter';
 import { useDrop, useDrag } from 'react-dnd';
 import { IconChevronRight, IconDots, IconLoader2 } from '@tabler/icons';
 import Dropdown from 'components/Dropdown';
-import { toggleCollection } from 'providers/ReduxStore/slices/collections';
-import { mountCollection, moveCollectionAndPersist, handleCollectionItemDrop } from 'providers/ReduxStore/slices/collections/actions';
+import { toggleCollection, collapseFullCollection } from 'providers/ReduxStore/slices/collections';
+import { mountCollection, moveCollectionAndPersist, handleCollectionItemDrop, pasteItem } from 'providers/ReduxStore/slices/collections/actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { hideHomePage } from 'providers/ReduxStore/slices/app';
 import { addTab, makeTabPermanent } from 'providers/ReduxStore/slices/tabs';
+import toast from 'react-hot-toast';
 import NewRequest from 'components/Sidebar/NewRequest';
 import NewFolder from 'components/Sidebar/NewFolder';
 import CollectionItem from './CollectionItem';
@@ -41,7 +42,7 @@ const Collection = ({ collection, searchText }) => {
   const collectionRef = useRef(null);
   
   const isCollectionFocused = useSelector(isTabForItemActive({ itemUid: collection.uid }));
-  
+  const { hasCopiedItems } = useSelector((state) => state.app.clipboard);
   const menuDropdownTippyRef = useRef();
   const onMenuDropdownCreate = (ref) => (menuDropdownTippyRef.current = ref);
   const MenuIcon = forwardRef((_props, ref) => {
@@ -132,6 +133,10 @@ const Collection = ({ collection, searchText }) => {
     }
   };
 
+  const handleCollapseFullCollection = () => {
+    dispatch(collapseFullCollection({ collectionUid: collection.uid }));
+  };
+
   const viewCollectionSettings = () => {
     dispatch(
       addTab({
@@ -140,6 +145,17 @@ const Collection = ({ collection, searchText }) => {
         type: 'collection-settings'
       })
     );
+  };
+
+  const handlePasteRequest = () => {
+    menuDropdownTippyRef.current.hide();
+    dispatch(pasteItem(collection.uid, null))
+      .then(() => {
+        toast.success('Request pasted successfully');
+      })
+      .catch((err) => {
+        toast.error(err ? err.message : 'An error occurred while pasting the request');
+      });
   };
 
   const isCollectionItem = (itemType) => {
@@ -252,7 +268,7 @@ const Collection = ({ collection, searchText }) => {
           </div>
           {isLoading ? <IconLoader2 className="animate-spin mx-1" size={18} strokeWidth={1.5} /> : null}
         </div>
-        <div className="collection-actions">
+        <div className="collection-actions" data-testid="collection-actions">
           <Dropdown onCreate={onMenuDropdownCreate} icon={<MenuIcon />} placement="bottom-start">
             <div
               className="dropdown-item"
@@ -274,6 +290,7 @@ const Collection = ({ collection, searchText }) => {
             </div>
             <div
               className="dropdown-item"
+              data-testid="clone-collection"
               onClick={(_e) => {
                 menuDropdownTippyRef.current.hide();
                 setShowCloneCollectionModalOpen(true);
@@ -281,6 +298,14 @@ const Collection = ({ collection, searchText }) => {
             >
               Clone
             </div>
+            {hasCopiedItems && (
+              <div
+                className="dropdown-item"
+                onClick={handlePasteRequest}
+              >
+                Paste
+              </div>
+            )}
             <div
               className="dropdown-item"
               onClick={(_e) => {
@@ -309,6 +334,15 @@ const Collection = ({ collection, searchText }) => {
               }}
             >
               Share
+            </div>
+            <div
+              className="dropdown-item"
+              onClick={(_e) => {
+                menuDropdownTippyRef.current.hide();
+                handleCollapseFullCollection();
+              }}
+            >
+              Collapse
             </div>
             <div
               className="dropdown-item"
