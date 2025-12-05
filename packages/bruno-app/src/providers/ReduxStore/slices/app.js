@@ -27,6 +27,9 @@ const initialState = {
     },
     beta: {
       grpc: false
+    },
+    storage: {
+      collectionPath: null,
     }
   },
   generateCode: {

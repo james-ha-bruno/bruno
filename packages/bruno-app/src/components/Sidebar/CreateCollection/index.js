@@ -1,7 +1,8 @@
 import React, { useRef, useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import get from 'lodash/get';
 import { browseDirectory } from 'providers/ReduxStore/slices/collections/actions';
 import { createCollection } from 'providers/ReduxStore/slices/collections/actions';
 import toast from 'react-hot-toast';
@@ -19,13 +20,15 @@ const CreateCollection = ({ onClose }) => {
   const inputRef = useRef();
   const dispatch = useDispatch();
   const [isEditing, toggleEditing] = useState(false);
+  const preferences = useSelector(state => state.app.preferences);
+  const defaultCollectionPath = get(preferences, 'storage.collectionPath', null);
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
       collectionName: '',
       collectionFolderName: '',
-      collectionLocation: ''
+      collectionLocation: defaultCollectionPath || '',
     },
     validationSchema: Yup.object({
       collectionName: Yup.string()
@@ -54,7 +57,7 @@ const CreateCollection = ({ onClose }) => {
   });
 
   const browse = () => {
-    dispatch(browseDirectory())
+    dispatch(browseDirectory(defaultCollectionPath))
       .then((dirPath) => {
         // When the user closes the dialog without selecting anything dirPath will be false
         if (typeof dirPath === 'string') {

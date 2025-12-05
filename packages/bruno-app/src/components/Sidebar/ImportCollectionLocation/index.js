@@ -1,7 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import get from 'lodash/get';
 import { browseDirectory } from 'providers/ReduxStore/slices/collections/actions';
 import Modal from 'components/Modal';
 import Help from 'components/Help';
@@ -10,11 +11,13 @@ import Help from 'components/Help';
 const ImportCollectionLocation = ({ onClose, handleSubmit, collectionName }) => {
   const inputRef = useRef();
   const dispatch = useDispatch();
+  const preferences = useSelector(state => state.app.preferences);
+  const defaultCollectionPath = get(preferences, 'storage.collectionPath', null);
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      collectionLocation: ''
+      collectionLocation: defaultCollectionPath || '',
     },
     validationSchema: Yup.object({
       collectionLocation: Yup.string()
@@ -27,7 +30,7 @@ const ImportCollectionLocation = ({ onClose, handleSubmit, collectionName }) => 
     }
   });
   const browse = () => {
-    dispatch(browseDirectory())
+    dispatch(browseDirectory(defaultCollectionPath))
       .then((dirPath) => {
         if (typeof dirPath === 'string' && dirPath.length > 0) {
           formik.setFieldValue('collectionLocation', dirPath);

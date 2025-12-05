@@ -47,6 +47,9 @@ const defaultPreferences = {
   },
   onboarding: {
     hasLaunchedBefore: false
+  },
+  storage: {
+    collectionPath: null,
   }
 };
 
@@ -89,6 +92,9 @@ const preferencesSchema = Yup.object().shape({
   }),
   onboarding: Yup.object({
     hasLaunchedBefore: Yup.boolean()
+  }),
+  storage: Yup.object({
+    collectionPath: Yup.string().nullable(),
   })
 });
 

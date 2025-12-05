@@ -108,10 +108,23 @@ const createDirectory = async (dir) => {
   return fs.mkdirSync(dir);
 };
 
-const browseDirectory = async (win) => {
-  const { filePaths } = await dialog.showOpenDialog(win, {
+const browseDirectory = async (win, defaultPath = null) => {
+  const options = {
     properties: ['openDirectory', 'createDirectory']
-  });
+  };
+
+  // Set default path if provided and valid
+  if (defaultPath && typeof defaultPath === 'string' && defaultPath.length > 0) {
+    try {
+      if (isDirectory(defaultPath)) {
+        options.defaultPath = defaultPath;
+      }
+    } catch (e) {
+      // Ignore invalid paths
+    }
+  }
+
+  const { filePaths } = await dialog.showOpenDialog(win, options);
 
   if (!filePaths || !filePaths[0]) {
     return false;

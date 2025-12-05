@@ -12,9 +12,9 @@ const {
 
 const registerFilesystemIpc = (mainWindow) => {
   // Browse directory
-  ipcMain.handle('renderer:browse-directory', async (event, pathname, request) => {
+  ipcMain.handle('renderer:browse-directory', async (event, defaultPath) => {
     try {
-      return await browseDirectory(mainWindow);
+      return await browseDirectory(mainWindow, defaultPath);
     } catch (error) {
       return Promise.reject(error);
     }

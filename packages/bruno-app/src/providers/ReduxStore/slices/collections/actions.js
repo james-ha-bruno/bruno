@@ -1415,11 +1415,11 @@ export const removeCollection = (collectionUid) => (dispatch, getState) => {
   });
 };
 
-export const browseDirectory = () => (dispatch, getState) => {
+export const browseDirectory = (defaultPath = null) => (dispatch, getState) => {
   const { ipcRenderer } = window;
 
   return new Promise((resolve, reject) => {
-    ipcRenderer.invoke('renderer:browse-directory').then(resolve).catch(reject);
+    ipcRenderer.invoke('renderer:browse-directory', defaultPath).then(resolve).catch(reject);
   });
 };
 
