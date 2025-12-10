@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState, forwardRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFormik } from 'formik';
+import get from 'lodash/get';
 import * as Yup from 'yup';
 import { IconCaretDown } from '@tabler/icons';
 import { browseDirectory } from 'providers/ReduxStore/slices/collections/actions';
@@ -87,13 +88,15 @@ const ImportCollectionLocation = ({ onClose, handleSubmit, rawData, format }) =>
   const [groupingType, setGroupingType] = useState('tags');
   const dropdownTippyRef = useRef();
   const isOpenApi = format === 'openapi';
+  const preferences = useSelector((state) => state.app.preferences);
+  const defaultLocation = get(preferences, 'general.defaultCollectionLocation', '');
 
   const collectionName = getCollectionName(format, rawData);
 
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      collectionLocation: ''
+      collectionLocation: defaultLocation
     },
     validationSchema: Yup.object({
       collectionLocation: Yup.string()
